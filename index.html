@@ -1,1 +1,904 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Detector Pro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        :root {
+            --neon-purple: #a855f7;
+            --deep-purple: #7c3aed;
+            --electric-purple: #d8b4fe;
+            --dark-bg: #050505;
+            --card-bg: #0a0a0a;
+            --border-glow: rgba(168, 85, 247, 0.3);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--dark-bg);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Animated background grid */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(168, 85, 247, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(168, 85, 247, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glow-orb {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            top: -200px;
+            left: -200px;
+            pointer-events: none;
+            animation: float 10s ease-in-out infinite;
+        }
+
+        .glow-orb-2 {
+            position: fixed;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            bottom: -300px;
+            right: -300px;
+            pointer-events: none;
+            animation: float 15s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(50px, 50px); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--neon-purple), var(--deep-purple));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 40px rgba(168, 85, 247, 0.4);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 40px rgba(168, 85, 247, 0.4); }
+            50% { box-shadow: 0 0 60px rgba(168, 85, 247, 0.6); }
+        }
+
+        .logo-icon svg {
+            width: 32px;
+            height: 32px;
+            fill: white;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, var(--electric-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Input Section */
+        .input-section {
+            background: var(--card-bg);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 0 60px rgba(168, 85, 247, 0.1);
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-section:focus-within {
+            border-color: var(--neon-purple);
+            box-shadow: 0 0 80px rgba(168, 85, 247, 0.2);
+        }
+
+        .input-label {
+            display: block;
+            color: var(--electric-purple);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .url-input {
+            flex: 1;
+            background: rgba(168, 85, 247, 0.05);
+            border: 2px solid rgba(168, 85, 247, 0.2);
+            color: #fff;
+            padding: 1.25rem 1.5rem;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+        }
+
+        .url-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .url-input:focus {
+            border-color: var(--neon-purple);
+            background: rgba(168, 85, 247, 0.1);
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.2);
+        }
+
+        .scan-btn {
+            background: linear-gradient(135deg, var(--neon-purple), var(--deep-purple));
+            color: white;
+            border: none;
+            padding: 1.25rem 2.5rem;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 40px rgba(168, 85, 247, 0.4);
+            white-space: nowrap;
+        }
+
+        .scan-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 50px rgba(168, 85, 247, 0.6);
+        }
+
+        .scan-btn:active {
+            transform: translateY(0);
+        }
+
+        .scan-btn.loading {
+            opacity: 0.8;
+            cursor: not-allowed;
+        }
+
+        .scan-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Detection Badge */
+        .detection-badge {
+            display: none;
+            margin-top: 1.5rem;
+            padding: 1rem 1.5rem;
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 12px;
+            align-items: center;
+            gap: 1rem;
+            animation: slideDown 0.4s ease;
+        }
+
+        .detection-badge.show {
+            display: flex;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .badge-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(168, 85, 247, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .badge-info h3 {
+            color: var(--electric-purple);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.25rem;
+        }
+
+        .badge-info p {
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* Results Section */
+        .results {
+            display: none;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Status Card */
+        .status-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--neon-purple), var(--deep-purple));
+        }
+
+        .status-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 1.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            position: relative;
+        }
+
+        .status-icon.working {
+            background: rgba(34, 197, 94, 0.1);
+            border: 2px solid rgba(34, 197, 94, 0.3);
+            box-shadow: 0 0 60px rgba(34, 197, 94, 0.3);
+            animation: glowGreen 2s ease-in-out infinite;
+        }
+
+        .status-icon.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid rgba(239, 68, 68, 0.3);
+            box-shadow: 0 0 60px rgba(239, 68, 68, 0.3);
+        }
+
+        @keyframes glowGreen {
+            0%, 100% { box-shadow: 0 0 60px rgba(34, 197, 94, 0.3); }
+            50% { box-shadow: 0 0 80px rgba(34, 197, 94, 0.5); }
+        }
+
+        .status-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-title.working {
+            color: #22c55e;
+            text-shadow: 0 0 30px rgba(34, 197, 94, 0.5);
+        }
+
+        .status-title.error {
+            color: #ef4444;
+        }
+
+        .status-desc {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.1rem;
+        }
+
+        /* Details Grid */
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .detail-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 20px;
+            padding: 1.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .detail-card:hover {
+            border-color: var(--neon-purple);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(168, 85, 247, 0.2);
+        }
+
+        .detail-label {
+            color: var(--electric-purple);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-value {
+            color: #fff;
+            font-size: 1.3rem;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+
+        .detail-sub {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Example Section */
+        .example-section {
+            background: var(--card-bg);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 24px;
+            padding: 2.5rem;
+        }
+
+        .example-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .example-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .example-badge {
+            background: rgba(168, 85, 247, 0.2);
+            color: var(--electric-purple);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .code-block {
+            background: #000;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 16px;
+            padding: 1.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: 'JSON';
+            position: absolute;
+            top: 0.75rem;
+            right: 1rem;
+            color: var(--neon-purple);
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .code-content {
+            color: #e9d5ff;
+        }
+
+        .key { color: #a855f7; }
+        .string { color: #86efac; }
+        .number { color: #fca5a5; }
+        .boolean { color: #f0abfc; }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 4rem;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            h1 { font-size: 2rem; }
+            .input-wrapper { flex-direction: column; }
+            .scan-btn { justify-content: center; }
+            .details-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="glow-orb"></div>
+    <div class="glow-orb-2"></div>
+
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                </div>
+                <h1>API Detector</h1>
+            </div>
+            <p class="subtitle">Pega la URL y detecta automáticamente el tipo de API</p>
+        </header>
+
+        <section class="input-section">
+            <label class="input-label">Endpoint URL</label>
+            <div class="input-wrapper">
+                <input type="text" class="url-input" id="apiUrl" placeholder="https://api.ejemplo.com/v1/data" autocomplete="off">
+                <button class="scan-btn" id="scanBtn" onclick="examineApi()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    Examinar
+                </button>
+            </div>
+            
+            <div class="detection-badge" id="detectionBadge">
+                <div class="badge-icon" id="badgeIcon">🔍</div>
+                <div class="badge-info">
+                    <h3>Tipo Detectado</h3>
+                    <p id="detectedType">Analizando...</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="results" id="results">
+            <div class="status-card">
+                <div class="status-icon" id="statusIcon">⚡</div>
+                <h2 class="status-title" id="statusTitle">Verificando...</h2>
+                <p class="status-desc" id="statusDesc">Probando conectividad con el servidor</p>
+            </div>
+
+            <div class="details-grid">
+                <div class="detail-card">
+                    <div class="detail-label">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        Latencia
+                    </div>
+                    <div class="detail-value" id="latency">--</div>
+                    <div class="detail-sub">Tiempo de respuesta</div>
+                </div>
+                
+                <div class="detail-card">
+                    <div class="detail-label">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+                        Status Code
+                    </div>
+                    <div class="detail-value" id="statusCode">--</div>
+                    <div class="detail-sub">Código HTTP</div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-label">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                        Content-Type
+                    </div>
+                    <div class="detail-value" id="contentType">--</div>
+                    <div class="detail-sub">Formato de datos</div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-label">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                        Tamaño
+                    </div>
+                    <div class="detail-value" id="size">--</div>
+                    <div class="detail-sub">Bytes recibidos</div>
+                </div>
+            </div>
+
+            <div class="example-section">
+                <div class="example-header">
+                    <h3 class="example-title">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--neon-purple)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        Respuesta de Ejemplo
+                    </h3>
+                    <span class="example-badge" id="exampleBadge">JSON</span>
+                </div>
+                <div class="code-block">
+                    <pre class="code-content" id="exampleCode">// Los datos aparecerán aquí...</pre>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>API Detector Pro • Análisis en tiempo real</p>
+        </footer>
+    </div>
+
+    <script>
+        // Base de datos de APIs conocidas para detectar tipo
+        const apiDatabase = {
+            'tiktok': {
+                type: 'TikTok API',
+                icon: '🎵',
+                description: 'API oficial de TikTok para contenido y analytics',
+                example: {
+                    "data": {
+                        "id": "7212345678901234567",
+                        "desc": "Video viral de ejemplo",
+                        "create_time": "1699999999",
+                        "author": {
+                            "id": "123456789",
+                            "unique_id": "@usuario",
+                            "nickname": "Usuario TikTok"
+                        },
+                        "stats": {
+                            "digg_count": 150000,
+                            "share_count": 5000,
+                            "comment_count": 2300,
+                            "play_count": 2000000
+                        },
+                        "video": {
+                            "duration": 15,
+                            "ratio": "720p",
+                            "cover": "https://example.com/cover.jpg"
+                        }
+                    }
+                }
+            },
+            'youtube': {
+                type: 'YouTube Data API',
+                icon: '📺',
+                description: 'API de Google para videos y canales',
+                example: {
+                    "kind": "youtube#videoListResponse",
+                    "items": [{
+                        "id": "dQw4w9WgXcQ",
+                        "snippet": {
+                            "title": "Video de Ejemplo",
+                            "channelTitle": "Canal Oficial",
+                            "publishedAt": "2024-01-01T00:00:00Z"
+                        },
+                        "statistics": {
+                            "viewCount": "1000000",
+                            "likeCount": "50000",
+                            "commentCount": "5000"
+                        }
+                    }]
+                }
+            },
+            'github': {
+                type: 'GitHub API',
+                icon: '🐙',
+                description: 'API de repositorios y usuarios',
+                example: {
+                    "login": "octocat",
+                    "id": 1,
+                    "avatar_url": "https://github.com/images/error/octocat_happy.gif",
+                    "type": "User",
+                    "site_admin": false,
+                    "name": "monalisa octocat",
+                    "company": "GitHub",
+                    "blog": "https://github.com/blog",
+                    "location": "San Francisco",
+                    "public_repos": 2,
+                    "followers": 20,
+                    "following": 0
+                }
+            },
+            'weather': {
+                type: 'Weather API',
+                icon: '🌤️',
+                description: 'Servicio meteorológico',
+                example: {
+                    "coord": {"lon": -0.1257, "lat": 51.5085},
+                    "weather": [{"id": 800, "main": "Clear", "description": "clear sky"}],
+                    "main": {
+                        "temp": 22.5,
+                        "feels_like": 21.8,
+                        "temp_min": 20.1,
+                        "temp_max": 24.2,
+                        "pressure": 1015,
+                        "humidity": 65
+                    },
+                    "wind": {"speed": 3.5, "deg": 200},
+                    "name": "London"
+                }
+            },
+            'jsonplaceholder': {
+                type: 'JSON Placeholder',
+                icon: '🧪',
+                description: 'API fake para testing',
+                example: {
+                    "userId": 1,
+                    "id": 1,
+                    "title": "sunt aut facere repellat provident",
+                    "body": "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum"
+                }
+            },
+            'pokeapi': {
+                type: 'PokéAPI',
+                icon: '🎮',
+                description: 'Datos de Pokémon',
+                example: {
+                    "id": 25,
+                    "name": "pikachu",
+                    "base_experience": 112,
+                    "height": 4,
+                    "weight": 60,
+                    "types": [{"slot": 1, "type": {"name": "electric"}}],
+                    "sprites": {
+                        "front_default": "https://raw.githubusercontent.com/..."
+                    }
+                }
+            },
+            'default': {
+                type: 'REST API Genérica',
+                icon: '🔌',
+                description: 'API REST estándar',
+                example: {
+                    "status": "success",
+                    "code": 200,
+                    "message": "Operación completada correctamente",
+                    "data": {
+                        "id": 123,
+                        "timestamp": "2024-01-01T12:00:00Z",
+                        "result": []
+                    }
+                }
+            }
+        };
+
+        function detectApiType(url) {
+            const lowerUrl = url.toLowerCase();
+            
+            for (const [key, data] of Object.entries(apiDatabase)) {
+                if (lowerUrl.includes(key)) {
+                    return data;
+                }
+            }
+            
+            // Detección por patrón
+            if (lowerUrl.includes('api.')) return {...apiDatabase.default, type: 'API Corporativa'};
+            if (lowerUrl.includes('graphql')) return {...apiDatabase.default, type: 'GraphQL API', icon: '◈'};
+            if (lowerUrl.includes('rest')) return {...apiDatabase.default, type: 'REST API'};
+            if (lowerUrl.includes('v1') || lowerUrl.includes('v2')) return {...apiDatabase.default, type: 'API Versionada'};
+            
+            return apiDatabase.default;
+        }
+
+        function syntaxHighlight(json) {
+            if (typeof json !== 'string') json = JSON.stringify(json, null, 2);
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                        match = match.slice(0, -1) + '</span>:';
+                    } else {
+                        cls = 'string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        async function examineApi() {
+            const url = document.getElementById('apiUrl').value.trim();
+            const btn = document.getElementById('scanBtn');
+            const results = document.getElementById('results');
+            const badge = document.getElementById('detectionBadge');
+            
+            if (!url) {
+                alert('Por favor ingresa una URL');
+                return;
+            }
+
+            // UI Loading state
+            btn.classList.add('loading');
+            btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite"><circle cx="12" cy="12" r="10" stroke-dasharray="31.42" stroke-dashoffset="10"/></svg> Analizando...`;
+            
+            // Detectar tipo
+            const apiInfo = detectApiType(url);
+            
+            // Mostrar detección
+            badge.classList.add('show');
+            document.getElementById('badgeIcon').textContent = apiInfo.icon;
+            document.getElementById('detectedType').textContent = apiInfo.type;
+            
+            const startTime = performance.now();
+            
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'User-Agent': 'API-Detector/1.0'
+                    },
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                const endTime = performance.now();
+                const latency = (endTime - startTime).toFixed(0);
+                
+                let data;
+                const contentType = response.headers.get('content-type') || 'unknown';
+                
+                if (contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    data = await response.text();
+                }
+                
+                // Mostrar resultados
+                results.classList.add('show');
+                
+                // Status
+                const isOk = response.ok;
+                const statusIcon = document.getElementById('statusIcon');
+                const statusTitle = document.getElementById('statusTitle');
+                const statusDesc = document.getElementById('statusDesc');
+                
+                if (isOk) {
+                    statusIcon.textContent = '✓';
+                    statusIcon.className = 'status-icon working';
+                    statusTitle.textContent = '¡API Funcionando!';
+                    statusTitle.className = 'status-title working';
+                    statusDesc.textContent = `${apiInfo.description} • Responde correctamente`;
+                } else {
+                    statusIcon.textContent = '⚠';
+                    statusIcon.className = 'status-icon error';
+                    statusTitle.textContent = `Error ${response.status}`;
+                    statusTitle.className = 'status-title error';
+                    statusDesc.textContent = 'La API responde pero con error';
+                }
+                
+                // Detalles
+                document.getElementById('latency').textContent = `${latency}ms`;
+                document.getElementById('statusCode').textContent = response.status;
+                document.getElementById('contentType').textContent = contentType.split(';')[0];
+                document.getElementById('size').textContent = `${JSON.stringify(data).length} bytes`;
+                
+                // Ejemplo
+                const exampleData = typeof data === 'object' && Object.keys(data).length > 0 ? data : apiInfo.example;
+                document.getElementById('exampleCode').innerHTML = syntaxHighlight(exampleData);
+                document.getElementById('exampleBadge').textContent = contentType.includes('json') ? 'JSON' : 'TEXT';
+                
+            } catch (error) {
+                results.classList.add('show');
+                
+                const statusIcon = document.getElementById('statusIcon');
+                const statusTitle = document.getElementById('statusTitle');
+                const statusDesc = document.getElementById('statusDesc');
+                
+                statusIcon.textContent = '✕';
+                statusIcon.className = 'status-icon error';
+                statusTitle.textContent = 'API No Disponible';
+                statusTitle.className = 'status-title error';
+                
+                if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                    statusDesc.textContent = 'CORS bloqueado o URL inaccesible. Prueba con una API pública.';
+                } else if (error.name === 'AbortError') {
+                    statusDesc.textContent = 'Timeout - La API no responde en 10s';
+                } else {
+                    statusDesc.textContent = error.message;
+                }
+                
+                document.getElementById('latency').textContent = 'Timeout';
+                document.getElementById('statusCode').textContent = 'Error';
+                document.getElementById('contentType').textContent = '-';
+                document.getElementById('size').textContent = '-';
+                
+                // Mostrar ejemplo genérico
+                document.getElementById('exampleCode').innerHTML = syntaxHighlight(apiInfo.example);
+                document.getElementById('exampleBadge').textContent = 'Ejemplo';
+            } finally {
+                btn.classList.remove('loading');
+                btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg> Examinar`;
+            }
+        }
+
+        // Enter key support
+        document.getElementById('apiUrl').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') examineApi();
+        });
+
+        // Auto-detect on paste
+        document.getElementById('apiUrl').addEventListener('paste', function(e) {
+            setTimeout(() => {
+                const url = e.target.value;
+                if (url.includes('http')) {
+                    const apiInfo = detectApiType(url);
+                    const badge = document.getElementById('detectionBadge');
+                    badge.classList.add('show');
+                    document.getElementById('badgeIcon').textContent = apiInfo.icon;
+                    document.getElementById('detectedType').textContent = apiInfo.type;
+                }
+            }, 0);
+        });
+    </script>
+</body>
+</html>
