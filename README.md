@@ -5,7 +5,7 @@ Hola soy CUervita y cree un no se apis
 ##Imagen del proyecto##
 
 
-![Imagen Cover](https://files.catbox.moe/recjzo.jpeg)
+![Imagen Cover](https://files.catbox.moe/3twop6.jpeg)
 
 
 ---
